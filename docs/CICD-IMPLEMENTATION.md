@@ -496,7 +496,7 @@ Verification at deploy time can be enforced with a Kyverno policy in EKS.
 | `AWS_SECRET_ACCESS_KEY` | IAM user secret |
 | `DEV_DB_PASSWORD` | RDS master password — passed to `terraform plan/apply` as `-var` |
 | `DEV_JWT_SECRET` | JWT signing secret — stored in AWS Secrets Manager by Terraform |
-| `GITHUB_ORG` | Your GitHub username/org (repository variable, not secret) |
+| `GH_ORG` | Your GitHub username/org (repository variable, not secret) |
 | `TF_STATE_BUCKET` | S3 bucket name for Terraform state (repository variable) |
 
 ### Repository variables (zen-pharma-backend and zen-pharma-frontend)
