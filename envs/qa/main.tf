@@ -18,7 +18,7 @@ module "eks" {
   env                = "qa"
   cluster_version    = "1.33"
   subnet_ids         = module.vpc.private_eks_subnet_ids
-  node_instance_type = "t3.medium"
+  node_instance_type = "t3.small"
   desired_capacity   = 2
   min_size           = 1
   max_size           = 3
@@ -35,23 +35,6 @@ module "rds" {
   db_name               = "pharmadb"
   db_username           = "pharmaadmin"
   db_password           = var.db_password
-}
-
-module "ecr" {
-  source = "../../modules/ecr"
-
-  project = "pharma"
-  env     = "qa"
-  repositories = [
-    "api-gateway",
-    "auth-service",
-    "drug-catalog-service",
-    "inventory-service",
-    "manufacturing-service",
-    "notification-service",
-    "pharma-ui",
-    "supplier-service",
-  ]
 }
 
 module "iam" {
