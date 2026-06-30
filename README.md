@@ -936,15 +936,30 @@ Do not panic. Terraform updates state for every resource it successfully creates
 
 ```
 Error: Error acquiring the state lock
+Error message: operation error S3: PutObject, ... PreconditionFailed
 ```
 
-Another apply is running (or a previous one crashed mid-run). Wait for it to finish. If you are certain no apply is running:
+This repo uses S3 native locking (`use_lockfile = true`). The lock is stored as an object at `<state-key>.tflock` in S3. If a previous GitHub Actions run was cancelled or the runner was killed mid-operation, the lock file is never deleted and all subsequent runs fail with this error.
+
+**Fix — delete the stale lock file from S3:**
+
+```bash
+# Replace YOUR-GITHUB-USERNAME and the environment (dev/qa/prod) as needed
+aws s3 rm s3://zen-pharma-terraform-state-YOUR-GITHUB-USERNAME/envs/dev/terraform.tfstate.tflock
+```
+
+After deleting, re-trigger the failed workflow — no other changes needed.
+
+**Alternative — use terraform force-unlock (requires local init):**
 
 ```bash
 cd envs/dev
+terraform init -backend-config=backend.tfvars
 terraform force-unlock <LOCK-ID>
-# Lock ID is shown in the error message
+# Lock ID is printed in the error message (e.g. cabe82fc-bceb-b502-36fb-f4ee3a772745)
 ```
+
+> **Why does this happen?** When a GitHub Actions runner is killed (timeout, cancellation, infra issue), the job's cleanup steps never run. The S3 lock file has no expiry, so it persists indefinitely. The S3 `rm` command above is the fastest fix.
 
 ### `terraform init` fails — region not configured
 
